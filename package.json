@@ -1,0 +1,31 @@
+{
+  "name": "cors-doctor",
+  "version": "0.1.0",
+  "description": "Dev-only CORS diagnostic middleware that explains why browser CORS requests fail and how to fix them",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "cors",
+    "debugging",
+    "diagnostics",
+    "middleware",
+    "express",
+    "fastify",
+    "developer-tools"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^25.2.2",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
+  }
+}
