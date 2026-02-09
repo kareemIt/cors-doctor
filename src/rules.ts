@@ -104,10 +104,67 @@ export const postmanVsBrowser: CorsRule = (req, res) => {
   };
 };
 
+export const missingVaryOrigin: CorsRule = (req, res) => {
+  if (!res.allowOrigin || res.allowOrigin === "*") return null;
+  if (res.vary.includes("origin")) return null;
+
+  return {
+    rule: "missing-vary-origin",
+    severity: "warn",
+    issue:
+      "Server sets a dynamic Access-Control-Allow-Origin but does not include Vary: Origin.",
+    explanation:
+      "Without Vary: Origin, intermediate caches (CDNs, proxies) may serve a response " +
+      "cached for one origin to a different origin, causing CORS failures for some users.",
+    fix: "Add \"Vary: Origin\" to the response headers.",
+  };
+};
+
+export const missingMaxAge: CorsRule = (req, res) => {
+  if (!req.isPreflight) return null;
+  if (res.maxAge != null && res.maxAge > 0) return null;
+
+  return {
+    rule: "missing-max-age",
+    severity: "warn",
+    issue:
+      res.maxAge === 0
+        ? "Access-Control-Max-Age is set to 0. Preflight results will not be cached."
+        : "No Access-Control-Max-Age header on preflight response.",
+    explanation:
+      "Without preflight caching, the browser sends an extra OPTIONS request before every " +
+      "cross-origin request, doubling network round-trips and adding latency.",
+    fix:
+      "Add \"Access-Control-Max-Age: 86400\" (or another suitable duration in seconds) " +
+      "to preflight responses to let browsers cache the result.",
+  };
+};
+
+export const duplicateOriginHeader: CorsRule = (_req, res) => {
+  if (res.allowOriginCount <= 1) return null;
+
+  return {
+    rule: "duplicate-origin-header",
+    severity: "error",
+    issue:
+      `Access-Control-Allow-Origin header is set ${res.allowOriginCount} times.`,
+    explanation:
+      "This usually happens when both a reverse proxy (e.g. nginx) and the application " +
+      "set CORS headers independently. Browsers reject responses with multiple " +
+      "Access-Control-Allow-Origin values.",
+    fix:
+      "Ensure only one layer sets CORS headers. Remove the duplicate from either " +
+      "the proxy config or the application middleware.",
+  };
+};
+
 export const allRules: CorsRule[] = [
   wildcardWithCredentials,
   missingAllowedHeaders,
   missingPreflightHandling,
   originMismatch,
   postmanVsBrowser,
+  missingVaryOrigin,
+  missingMaxAge,
+  duplicateOriginHeader,
 ];

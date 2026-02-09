@@ -1,7 +1,7 @@
 {
   "name": "cors-doctor",
   "version": "0.1.0",
-  "description": "Dev-only CORS diagnostic middleware that explains why browser CORS requests fail and how to fix them",
+  "description": "Dev-only CORS diagnostic middleware for Node.js — explains why browser CORS requests fail and how to fix them. Works with Express and Fastify.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -11,18 +11,51 @@
     "build": "tsc",
     "test": "vitest run",
     "test:watch": "vitest",
-    "prepublishOnly": "npm run build"
+    "lint": "tsc --noEmit",
+    "prepublishOnly": "npm run lint && npm test && npm run build"
   },
   "keywords": [
     "cors",
+    "cors-error",
+    "cors-debug",
+    "cors-fix",
+    "cors-headers",
+    "cors-preflight",
+    "cors-middleware",
+    "cors-diagnostics",
+    "cross-origin",
+    "access-control-allow-origin",
+    "preflight",
+    "options-request",
     "debugging",
     "diagnostics",
     "middleware",
     "express",
+    "express-middleware",
     "fastify",
-    "developer-tools"
+    "fastify-middleware",
+    "node",
+    "nodejs",
+    "developer-tools",
+    "devtools",
+    "postman",
+    "browser-cors",
+    "wildcard-origin",
+    "credentials"
   ],
+  "homepage": "https://github.com/your-username/cors-doctor#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-username/cors-doctor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/cors-doctor/issues"
+  },
+  "author": "",
   "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0"
+  },
   "devDependencies": {
     "@types/node": "^25.2.2",
     "typescript": "^5.9.3",

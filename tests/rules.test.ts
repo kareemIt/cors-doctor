@@ -5,6 +5,9 @@ import {
   missingPreflightHandling,
   originMismatch,
   postmanVsBrowser,
+  missingVaryOrigin,
+  missingMaxAge,
+  duplicateOriginHeader,
 } from "../src/rules";
 import type { CorsRequestInfo, CorsResponseInfo } from "../src/types";
 
@@ -12,6 +15,7 @@ function makeReq(overrides: Partial<CorsRequestInfo> = {}): CorsRequestInfo {
   return {
     origin: "https://app.test",
     method: "GET",
+    url: "/api/test",
     isPreflight: false,
     requestedMethod: null,
     requestedHeaders: [],
@@ -23,9 +27,11 @@ function makeReq(overrides: Partial<CorsRequestInfo> = {}): CorsRequestInfo {
 function makeRes(overrides: Partial<CorsResponseInfo> = {}): CorsResponseInfo {
   return {
     allowOrigin: "https://app.test",
+    allowOriginCount: 1,
     allowMethods: [],
     allowHeaders: [],
     allowCredentials: false,
+    maxAge: null,
     vary: [],
     status: 200,
     ...overrides,
@@ -197,6 +203,108 @@ describe("postmanVsBrowser", () => {
     const result = postmanVsBrowser(
       makeReq({ origin: "https://app.test", isPreflight: true }),
       makeRes({ allowOrigin: null })
+    );
+    expect(result).toBeNull();
+  });
+});
+
+describe("missingVaryOrigin", () => {
+  it("warns when dynamic origin is set without Vary: Origin", () => {
+    const result = missingVaryOrigin(
+      makeReq(),
+      makeRes({ allowOrigin: "https://app.test", vary: [] })
+    );
+    expect(result).not.toBeNull();
+    expect(result!.rule).toBe("missing-vary-origin");
+    expect(result!.severity).toBe("warn");
+  });
+
+  it("returns null when Vary includes Origin", () => {
+    const result = missingVaryOrigin(
+      makeReq(),
+      makeRes({ allowOrigin: "https://app.test", vary: ["origin"] })
+    );
+    expect(result).toBeNull();
+  });
+
+  it("returns null when allow-origin is wildcard", () => {
+    const result = missingVaryOrigin(
+      makeReq(),
+      makeRes({ allowOrigin: "*", vary: [] })
+    );
+    expect(result).toBeNull();
+  });
+
+  it("returns null when no allow-origin is set", () => {
+    const result = missingVaryOrigin(
+      makeReq(),
+      makeRes({ allowOrigin: null, vary: [] })
+    );
+    expect(result).toBeNull();
+  });
+});
+
+describe("missingMaxAge", () => {
+  it("warns when preflight has no max-age", () => {
+    const result = missingMaxAge(
+      makeReq({ isPreflight: true, requestedMethod: "PUT" }),
+      makeRes({ maxAge: null })
+    );
+    expect(result).not.toBeNull();
+    expect(result!.rule).toBe("missing-max-age");
+    expect(result!.severity).toBe("warn");
+  });
+
+  it("warns when max-age is 0", () => {
+    const result = missingMaxAge(
+      makeReq({ isPreflight: true, requestedMethod: "PUT" }),
+      makeRes({ maxAge: 0 })
+    );
+    expect(result).not.toBeNull();
+    expect(result!.issue).toContain("set to 0");
+  });
+
+  it("returns null when max-age is positive", () => {
+    const result = missingMaxAge(
+      makeReq({ isPreflight: true, requestedMethod: "PUT" }),
+      makeRes({ maxAge: 86400 })
+    );
+    expect(result).toBeNull();
+  });
+
+  it("returns null for non-preflight requests", () => {
+    const result = missingMaxAge(
+      makeReq({ isPreflight: false }),
+      makeRes({ maxAge: null })
+    );
+    expect(result).toBeNull();
+  });
+});
+
+describe("duplicateOriginHeader", () => {
+  it("warns when allow-origin is set multiple times", () => {
+    const result = duplicateOriginHeader(
+      makeReq(),
+      makeRes({ allowOriginCount: 2 })
+    );
+    expect(result).not.toBeNull();
+    expect(result!.rule).toBe("duplicate-origin-header");
+    expect(result!.severity).toBe("error");
+    expect(result!.issue).toContain("2 times");
+  });
+
+  it("returns null when allow-origin is set once", () => {
+    const result = duplicateOriginHeader(
+      makeReq(),
+      makeRes({ allowOriginCount: 1 })
+    );
+    expect(result).toBeNull();
+  });
+
+  it("returns null when allow-origin is not set", () => {
+    const result = duplicateOriginHeader(
+      makeReq(),
+      makeRes({ allowOriginCount: 0 })
     );
     expect(result).toBeNull();
   });

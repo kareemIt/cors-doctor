@@ -6,6 +6,7 @@ function makeReq(overrides: Partial<CorsRequestInfo> = {}): CorsRequestInfo {
   return {
     origin: "https://app.test",
     method: "GET",
+    url: "/api/test",
     isPreflight: false,
     requestedMethod: null,
     requestedHeaders: [],
@@ -17,10 +18,12 @@ function makeReq(overrides: Partial<CorsRequestInfo> = {}): CorsRequestInfo {
 function makeRes(overrides: Partial<CorsResponseInfo> = {}): CorsResponseInfo {
   return {
     allowOrigin: "https://app.test",
+    allowOriginCount: 1,
     allowMethods: [],
     allowHeaders: [],
     allowCredentials: false,
-    vary: [],
+    maxAge: null,
+    vary: ["origin"],
     status: 200,
     ...overrides,
   };

@@ -30,11 +30,13 @@ describe("detectPreflight", () => {
 });
 
 describe("extractCorsRequestInfo", () => {
-  it("extracts origin and method", () => {
+  it("extracts origin, method, and url", () => {
     const req = mockReq("GET", { Origin: "https://example.com" });
+    req.url = "/api/users";
     const info = extractCorsRequestInfo(req);
     expect(info.origin).toBe("https://example.com");
     expect(info.method).toBe("GET");
+    expect(info.url).toBe("/api/users");
     expect(info.isPreflight).toBe(false);
   });
 

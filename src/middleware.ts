@@ -3,7 +3,7 @@ import type { CorsDoctorOptions, Middleware } from "./types";
 import { extractCorsRequestInfo } from "./detect";
 import { extractCorsResponseInfo } from "./inspect";
 import { validateCors } from "./validate";
-import { formatWarnings } from "./format";
+import { formatWarnings, formatSummary, SummaryStats } from "./format";
 
 type LogFn = (message: string) => void;
 
@@ -40,6 +40,23 @@ export function corsDoctor(options: CorsDoctorOptions = {}): Middleware {
   const logLevel = options.logLevel || "warn";
   const log = getLogger(logLevel);
 
+  const stats: SummaryStats = {
+    totalRequests: 0,
+    issueCount: 0,
+    ruleHits: {},
+  };
+
+  // Register shutdown summary
+  if (log) {
+    const printSummary = () => {
+      if (stats.totalRequests > 0) {
+        log(formatSummary(stats));
+      }
+    };
+
+    process.on("exit", printSummary);
+  }
+
   return (req: IncomingMessage, res: ServerResponse, next: (err?: unknown) => void) => {
     if (!log) {
       next();
@@ -54,6 +71,9 @@ export function corsDoctor(options: CorsDoctorOptions = {}): Middleware {
       return;
     }
 
+    stats.totalRequests++;
+    const requestLabel = `${reqInfo.method} ${reqInfo.url}`;
+
     // Hook into writeHead to capture headers before they're sent
     const originalWriteHead = res.writeHead;
     res.writeHead = function (...args: Parameters<typeof res.writeHead>) {
@@ -67,7 +87,11 @@ export function corsDoctor(options: CorsDoctorOptions = {}): Middleware {
       );
 
       if (filtered.length > 0) {
-        const output = formatWarnings(filtered);
+        stats.issueCount++;
+        for (const w of filtered) {
+          stats.ruleHits[w.rule] = (stats.ruleHits[w.rule] || 0) + 1;
+        }
+        const output = formatWarnings(filtered, requestLabel);
         log(output);
       }
 

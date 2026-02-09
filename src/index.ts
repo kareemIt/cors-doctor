@@ -9,5 +9,6 @@ export type {
 export { extractCorsRequestInfo, detectPreflight } from "./detect";
 export { extractCorsResponseInfo } from "./inspect";
 export { validateCors } from "./validate";
-export { formatWarnings } from "./format";
+export { formatWarnings, formatSummary } from "./format";
+export type { SummaryStats } from "./format";
 export { allRules } from "./rules";

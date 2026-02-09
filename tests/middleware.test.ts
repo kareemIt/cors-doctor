@@ -23,13 +23,13 @@ function createTestServer(
 
 function request(
   server: http.Server,
-  options: { method?: string; headers?: Record<string, string> }
+  options: { method?: string; path?: string; headers?: Record<string, string> }
 ): Promise<{ status: number; body: string }> {
   return new Promise((resolve, reject) => {
     server.listen(0, () => {
       const addr = server.address() as { port: number };
       const req = http.request(
-        { hostname: "127.0.0.1", port: addr.port, method: options.method || "GET", headers: options.headers || {} },
+        { hostname: "127.0.0.1", port: addr.port, path: options.path || "/", method: options.method || "GET", headers: options.headers || {} },
         (res) => {
           let body = "";
           res.on("data", (chunk) => (body += chunk));
@@ -54,7 +54,7 @@ describe("corsDoctor middleware", () => {
     spy.mockRestore();
   });
 
-  it("warns on wildcard origin + credentials", async () => {
+  it("warns on wildcard origin + credentials and includes request label", async () => {
     const spy = vi.spyOn(console, "warn").mockImplementation(() => {});
     const server = createTestServer({}, (_req, res) => {
       res.setHeader("Access-Control-Allow-Origin", "*");
@@ -64,11 +64,13 @@ describe("corsDoctor middleware", () => {
     });
     await request(server, {
       method: "GET",
+      path: "/api/data",
       headers: { Origin: "https://app.test" },
     });
     expect(spy).toHaveBeenCalled();
     const output = spy.mock.calls[0][0] as string;
     expect(output).toContain("wildcard-with-credentials");
+    expect(output).toContain("GET /api/data");
     spy.mockRestore();
   });
 
