@@ -180,7 +180,7 @@ Formats a `SummaryStats` object into a summary report string.
 
 ## Compatibility
 
-- **Node.js** >= 16
+- **Node.js** >= 18
 - **Express** 4.x / 5.x
 - **Fastify** (via `.use()` with `@fastify/middie` or `@fastify/express`)
 - **Any framework** using standard `(req, res, next)` middleware
