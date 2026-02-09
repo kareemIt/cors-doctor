@@ -1,7 +1,7 @@
 # cors-doctor
 
 [![npm version](https://img.shields.io/npm/v/cors-doctor.svg)](https://www.npmjs.com/package/cors-doctor)
-[![license](https://img.shields.io/npm/l/cors-doctor.svg)](https://github.com/your-username/cors-doctor/blob/main/LICENSE)
+[![license](https://img.shields.io/npm/l/cors-doctor.svg)](https://github.com/kareemIt/cors-doctor/blob/main/LICENSE)
 
 **Dev-only CORS diagnostic middleware for Node.js.** It observes your CORS request/response pairs and emits human-readable warnings explaining **why** browser CORS requests fail and **how** to fix them.
 

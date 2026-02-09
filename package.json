@@ -43,13 +43,13 @@
     "wildcard-origin",
     "credentials"
   ],
-  "homepage": "https://github.com/your-username/cors-doctor#readme",
+  "homepage": "https://github.com/kareemIt/cors-doctor#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/your-username/cors-doctor.git"
+    "url": "git+https://github.com/kareemIt/cors-doctor.git"
   },
   "bugs": {
-    "url": "https://github.com/your-username/cors-doctor/issues"
+    "url": "https://github.com/kareemIt/cors-doctor/issues"
   },
   "author": "",
   "license": "MIT",
