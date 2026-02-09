@@ -8,7 +8,9 @@
       "Bash(npm test:*)",
       "Bash(npm run build:*)",
       "Bash(npm pack:*)",
-      "Bash(npm publish:*)"
+      "Bash(npm publish:*)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(curl:*)"
     ]
   }
 }
